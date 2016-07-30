@@ -1,0 +1,68 @@
+{"frames": {
+
+"polly_talk_1.png":
+{
+	"frame": {"x":324,"y":1,"w":98,"h":306},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":120,"y":45,"w":98,"h":306},
+	"sourceSize": {"w":350,"h":351}
+},
+"polly_talk_2.png":
+{
+	"frame": {"x":1,"y":1,"w":103,"h":312},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":115,"y":39,"w":103,"h":312},
+	"sourceSize": {"w":350,"h":351}
+},
+"polly_talk_3.png":
+{
+	"frame": {"x":106,"y":1,"w":111,"h":309},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":107,"y":42,"w":111,"h":309},
+	"sourceSize": {"w":350,"h":351}
+},
+"polly_talk_4.png":
+{
+	"frame": {"x":219,"y":1,"w":103,"h":308},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":115,"y":43,"w":103,"h":308},
+	"sourceSize": {"w":350,"h":351}
+},
+"polly_talk_5.png":
+{
+	"frame": {"x":424,"y":1,"w":107,"h":304},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":111,"y":47,"w":107,"h":304},
+	"sourceSize": {"w":350,"h":351}
+},
+"polly_talk_6.png":
+{
+	"frame": {"x":616,"y":1,"w":80,"h":302},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":138,"y":49,"w":80,"h":302},
+	"sourceSize": {"w":350,"h":351}
+},
+"polly_talk_7.png":
+{
+	"frame": {"x":533,"y":1,"w":81,"h":302},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":138,"y":49,"w":81,"h":302},
+	"sourceSize": {"w":350,"h":351}
+}},
+"meta": {
+	"app": "http://www.codeandweb.com/texturepacker",
+	"version": "1.0",
+	"image": "polly_talk.png",
+	"format": "RGBA8888",
+	"size": {"w":697,"h":314},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:7c3322996e3bc9a464f09ab4bea898d3:fb088da9c155018d88e19a7c135c0303:20b9818d5e80cd35260f416d8bd1c44d$"
+}
+}

@@ -1,0 +1,62 @@
+﻿<!doctype html>
+<html>
+<head>
+	<title>Adventure Game</title>
+
+	<link rel="stylesheet" href="./css/reset.css" type="text/css" media="screen" />
+	<link rel="stylesheet" href="./css/style.css" type="text/css" media="screen" />
+
+	<meta charset="utf-8">
+</head>
+<body>
+	<h1>Startseite</h1>
+	<div id="game_container">
+		<div id="gamebox"></div>
+	</div>
+	<div id="head_img"></div>
+
+	<!-- PIXI (renderer) -->
+	<script src="./scripts/vendor/pixi.js"></script>
+
+	<!-- the core game file -->
+	<script src="./scripts/Base_Game.js" type="text/javascript"></script>
+
+	<!-- the game modules, for the different parts -->
+	<script src="./scripts/components/Renderer.js" type="text/javascript"></script>
+	<script src="./scripts/components/Loader.js" type="text/javascript"></script>
+	<script src="./scripts/components/Room.js" type="text/javascript"></script>
+	<script src="./scripts/components/InteractiveObject.js" type="text/javascript"></script>
+	<script src="./scripts/components/AnimatableObject.js" type="text/javascript"></script>
+	<script src="./scripts/components/Character.js" type="text/javascript"></script>
+	<script src="./scripts/components/RoomObject.js" type="text/javascript"></script>
+
+	<!--<script src="./scripts/modules/Module_Gui.js" type="text/javascript"></script>
+	<script src="./scripts/modules/Module_Overlay.js" type="text/javascript"></script>
+	<script src="./scripts/modules/Module_Object.js" type="text/javascript"></script>
+	<script src="./scripts/modules/Module_Dialogs.js" type="text/javascript"></script>
+	<script src="./scripts/modules/Module_Room.js" type="text/javascript"></script>
+	<script src="./scripts/modules/Module_Inventory.js" type="text/javascript"></script>-->
+
+	<!-- the game building script -->
+	<script src="./scripts/Core_Builder.js" type="text/javascript"></script>
+
+	<script src="./scripts/gamedata.js" type="text/javascript"></script>
+	<script src="./scripts/game.js" type="text/javascript"></script>
+
+	<script type="text/javascript">
+		var roomName = "index";
+		var boxwidth = document.getElementById ("game_container").offsetWidth;
+		if (boxwidth < 1000) boxwidth = 1000;
+		else if (boxwidth > 1920) boxwidth = 1920;
+
+		var options = {
+			gameContainer: 'gamebox',
+			width: boxwidth,
+			height: 480
+		};
+		var game = new Game(options, gameData);
+
+		game.init ();
+	</script>
+</body>
+</html>
