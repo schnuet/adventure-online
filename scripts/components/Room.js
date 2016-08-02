@@ -12,7 +12,10 @@ Game.addComponent ('room', ['renderer', 'loader'], function (game, renderer, loa
 		enter : function () {},
 		repEx : function () {},
 		leave : function () {}
-	}
+	};
+	var saveValues = [
+		'visited'
+	];
 
 	var Room = function (scriptName, options) { // image, width, height, scriptName, options) {
 
@@ -79,11 +82,11 @@ Game.addComponent ('room', ['renderer', 'loader'], function (game, renderer, loa
 	Room.prototype.load = function () {
 
 		// if that room is currently loaded, don't do anything.
-		if (currentRoom === this.scriptName) return;
+		if (currentRoomNbr === this.id) return;
 
 		// if a room is currently loaded, unload that one first.
-		if (currentRoom !== '') {
-			roomList[roomMap[currentRoom]].unload();
+		if (currentRoomNbr !== -1) {
+			roomList[currentRoomNbr].unload();
 		}
 
 		currentRoom = this.scriptName;
@@ -142,6 +145,21 @@ Game.addComponent ('room', ['renderer', 'loader'], function (game, renderer, loa
 		//console.log ('Room clicked ', point);
 	};
 
+	Room.prototype._getSaveData = function () {
+		var saveData = {};
+		for (var property in DEFAULTS) {
+			if (this.hasOwnProperty(property)) {
+				saveData[property] = this[property];
+			}
+		}
+		var i = saveValues.length;
+		while (i--) {
+			saveData[saveValues[i]] = this[saveValues[i]];
+		}
+
+		return saveData;
+	};
+
 	Room.prototype._resourcesLoaded = function () {
 		// load room background and add it to the canvas
 		this.background = new renderer.Sprite(loader.resources[this.backgroundImg].texture);
@@ -186,6 +204,7 @@ Game.addComponent ('room', ['renderer', 'loader'], function (game, renderer, loa
 	Room.load = function (roomName) {
 		console.log ('-------------------------------');
 		console.log ('Room: Loading room ' + roomName);
+		console.log (currentRoom);
 		Room.get(roomName).load();
 	};
 
@@ -203,6 +222,9 @@ Game.addComponent ('room', ['renderer', 'loader'], function (game, renderer, loa
 		_options = roomConfig.options;
 		delete roomConfig.options;
 
+		// save the variables from the options:
+		currentRoom = _options.currentRoom;
+
 		// make rooms from the rest of the array:
 		for (var roomName in roomConfig) {
 			if (roomConfig.hasOwnProperty(roomName)) {
@@ -217,15 +239,60 @@ Game.addComponent ('room', ['renderer', 'loader'], function (game, renderer, loa
 		console.log ('Room: List of rooms. ', roomList);
 	};
 
-	function loadFirstRoom () {
-		if (_options.startRoom !== 'undefined') {
-			Room.load (_options.startRoom);
+	/*function loadFirstRoom () {
+		if (_options.currentRoom !== 'undefined') {
+			Room.load (_options.currentRoom);
 		}
-	};
+	};*/
+
+	// process a save event
+	game.addEventListener ('beforeSave', function () {
+
+		var saveRooms = {};
+
+		saveRooms.settings = {
+			currentRoom: currentRoom,
+		};
+
+		// loop through all the rooms:
+		var i = roomList.length;
+		while (i--) {
+			console.log (roomList[i].scriptName);
+			saveRooms[roomList[i].scriptName] = roomList[i]._getSaveData();
+		}
+
+		game._saveData.room = saveRooms;
+	});
+
+	// process a load event
+	game.addEventListener ('onSavegameLoad', function () {
+		var roomConfig = game._saveData.room;
+
+		// split the options from the rest of the settings object:
+		_options = roomConfig.settings;
+		delete roomConfig.settings;
+
+		// save the variables from the options:
+		currentRoom = _options.currentRoom;
+
+		// loop through all the rooms in the save:
+		for (var roomName in roomConfig) {
+			var r = Room.get(roomName);
+
+			// change all the properties of the current rooms to the saved props.
+			for (var variable in roomConfig[roomName]) {
+				r[variable] = roomConfig[roomName][variable];
+			}
+		}
+
+		console.log ('ROOM: all room properties loaded.');
+	});
 
 	// bind the creation to the game events
 	game.addEventListener('prepare', setupRooms);
-	game.addEventListener('game_loaded', loadFirstRoom);
+	game.addEventListener('game_loaded', function () {
+		Room.load (currentRoom);
+	});
 
 	return Room;
 });

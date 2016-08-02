@@ -6,11 +6,11 @@ Game.addComponent ('interactive_object', ['renderer', 'loader'], function (game,
     function InteractiveObject (scriptName, options) {
         renderer.Sprite.call(this, null);
 
-        this.construct(scriptName, options, InteractiveObject.DEFAULTS);
+        this.construct(scriptName, options, DEFAULTS);
     };
 
     // the interactive object: default options:
-    InteractiveObject.DEFAULTS =
+    var DEFAULTS =
     {
             image: '',              //  _image name to use (required)
             position: {
@@ -31,6 +31,8 @@ Game.addComponent ('interactive_object', ['renderer', 'loader'], function (game,
             onMouseIn: function() {},
             onMouseOut: function() {}
     };
+    // vars that should not be set in the options, but have to be saved:
+    var saveValues = [];
 
     InteractiveObject.prototype = Object.create(renderer.Sprite.prototype);
     InteractiveObject.constructor = InteractiveObject;
@@ -40,20 +42,10 @@ Game.addComponent ('interactive_object', ['renderer', 'loader'], function (game,
     // ================== functions =================
 
     // the core constructor function.
-    InteractiveObject.extendedPrototype.construct = function (scriptName, options, defaults) {
+    InteractiveObject.extendedPrototype.construct = function (scriptName, options) {
         this.scriptName = scriptName;
 
-        // get all the options from the option object
-        for (var variable in defaults) {
-            ///console.log (variable, options[variable]);
-            if (options.hasOwnProperty(variable)) {
-                this[variable] = options[variable];
-                //console.log (variable, options[variable]);
-            }
-            else {
-                this[variable] = defaults[variable];
-            }
-        }
+        options = this._getDefaultProperties (options, DEFAULTS);
 
         // we need to back up some options, because the loading process meddles with some properties
         // (especially sizes.)
@@ -91,9 +83,46 @@ Game.addComponent ('interactive_object', ['renderer', 'loader'], function (game,
 
             // set the mouseout callback...
             .on('mouseout', this.handleMouseOut);
+
+        return options;
     };
 
     // === internal methods ===
+
+    // save all the options in the options to the InteractiveObject, if a default value exists for them
+    InteractiveObject.extendedPrototype._getDefaultProperties = function (options, defaults) {
+
+        // create an internal var to save if we set an option at any point:
+        if (typeof this['_alreadySet'] === 'undefined') this['_alreadySet'] = [];
+
+        // get all the options from the option object
+        for (var variable in defaults) {
+
+            if (options.hasOwnProperty(variable)) {
+
+                /*if (typeof options[variable] === 'array') {
+                    console.log (variable + ' is an array...');
+                }
+                else if (typeof options[variable] === 'object') {
+                    console.log (variable + ' is an object...');
+                }*/
+                this[variable] = options[variable];
+
+                // delete the option, we hav deelt wit it.
+                delete options[variable];
+                //console.log ('deleted ' + variable);
+                this._alreadySet.push(variable);
+            }
+            // don't overwrite properties if they were already set.
+            else if (this._alreadySet.indexOf(variable) === -1) {
+                this[variable] = defaults[variable];
+                this._alreadySet.push(variable);
+                console.log (this.scriptName + ' initial set: ' + variable + ' -> ', defaults[variable]);
+            }
+        }
+
+        return options;
+    };
 
     InteractiveObject.extendedPrototype._attachLoadedTexture = function () {
         this.texture = loader.resources[this.image].texture;
@@ -111,6 +140,24 @@ Game.addComponent ('interactive_object', ['renderer', 'loader'], function (game,
 
         delete this._afterLoadOptions;
     };
+
+    // === saving ===
+
+    InteractiveObject.extendedPrototype._getSaveData = function () {
+		var saveData = {};
+
+		for (var property in DEFAULTS) {
+			if (this.hasOwnProperty(property)) {
+				saveData[property] = this[property];
+			}
+		}
+		var i = saveValues.length;
+		while (i--) {
+			saveData[saveValues[i]] = this[saveValues[i]];
+		}
+
+		return saveData;
+	};
 
     // ==========  event handlers ==============
 

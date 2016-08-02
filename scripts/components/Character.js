@@ -3,6 +3,20 @@
 
 Game.addComponent ('character', ['animatable_object', 'room', 'loader', 'renderer'], function (game, AnimatableObject, Room, Loader, renderer) {
 
+    var DEFAULTS = {
+        walkspeed: 5,
+        dir: 'down',
+        roomName: '',
+        isPlayer: false,
+        dirViews: null,
+        talkViews: null
+    };
+
+    // vars that should not be set in the options, but have to be saved:
+    var saveValues = [
+
+    ];
+
     function Character (scriptName, options) {
 
         // change object defaults to character defaults:
@@ -10,21 +24,20 @@ Game.addComponent ('character', ['animatable_object', 'room', 'loader', 'rendere
         if (typeof options.baseline === 'undefined') options.baseline = 0;
         if (typeof options.autoplay === 'undefined') options.autoplay = false;
 
-
         // get parent settings
         AnimatableObject.call(this, scriptName, options);
+
+        this._getDefaultProperties (options, DEFAULTS);
 
         // === public vars ===
 
         this.moving = false;
 
-        this.roomName = options.roomName || '';
-        this.walkspeed = options.walkspeed || 5;
-        this.dir = options.dir || 'down';
-        this._dirViews = options.dirViews || {down: options.views[0]};
-        this._talkViews = options.talkViews || {down: options.views[0]};
+        // fill the views with a default value if no view was passed:
+        if (this.dirViews === null) this.dirViews = {down: this.views[0]};
+        if (this.talkViews === null) this.talkViews = {down: this.views[0]};
 
-        if (options.isPlayer === true && playerChar === '') {
+        if (this.isPlayer === true && playerChar === '') {
             playerChar = this.scriptName;
             this.interactive = false;
         }
@@ -77,7 +90,7 @@ Game.addComponent ('character', ['animatable_object', 'room', 'loader', 'rendere
         playerChar = this.scriptName;
     };
 
-    Character.prototype.changeRoom = function (roomName, x, y, dir) {
+    Character.prototype.changeRoom = function (roomName, x, y, dir, _noautochange) {
         Room.get(this.roomName).removeElement(this);
         this.previousRoom = this.roomName;
         this.roomName = roomName;
@@ -89,7 +102,7 @@ Game.addComponent ('character', ['animatable_object', 'room', 'loader', 'rendere
         if (typeof y !== 'undefined') this.y = y;
         if (typeof y !== 'undefined') this.changeDir (dir);
 
-        if (playerChar === this.scriptName) {
+        if (playerChar === this.scriptName && _noautochange !== false) {
             Room.load(roomName);
         }
     };
@@ -97,8 +110,8 @@ Game.addComponent ('character', ['animatable_object', 'room', 'loader', 'rendere
     Character.prototype.changeDir = function (dirName) {
         this.dir = dirName;
         // change the current view to match the direction:
-        if (this._dirViews[dirName]) {
-            this.changeView(this._dirViews[dirName]);
+        if (this.dirViews[dirName]) {
+            this.changeView(this.dirViews[dirName]);
         }
     };
 
@@ -145,9 +158,9 @@ Game.addComponent ('character', ['animatable_object', 'room', 'loader', 'rendere
             this._textTimeout = setTimeout(this._stopTalking.bind(this), 3000);     // TODO: calculate time.
 
             // change the animation to the talking animation for the current direction (if available)
-            if (this._talkViews[this.dir]) {
+            if (this.talkViews[this.dir]) {
                 console.log ('changing to talk view ' + this.dir);
-                this.changeView(this._talkViews[this.dir]);
+                this.changeView(this.talkViews[this.dir]);
                 this.play();
             }
         }
@@ -277,6 +290,24 @@ Game.addComponent ('character', ['animatable_object', 'room', 'loader', 'rendere
         }
     };
 
+    Character.prototype._getSaveData = function () {
+
+        // save all the default values from the inherited class
+        var saveData = AnimatableObject.prototype._getSaveData.call(this);
+
+		for (var property in DEFAULTS) {
+			if (this.hasOwnProperty(property)) {
+				saveData[property] = this[property];
+			}
+		}
+		var i = saveValues.length;
+		while (i--) {
+			saveData[saveValues[i]] = this[saveValues[i]];
+		}
+
+		return saveData;
+	};
+
     // === public static functions ===
 
     Character.get = function (characterName) {
@@ -378,6 +409,63 @@ Game.addComponent ('character', ['animatable_object', 'room', 'loader', 'rendere
         }
     }
 
+    // saving the characters:
+    game.addEventListener ('beforeSave', function () {
+
+		var saveChars = {};
+
+		saveChars.settings = {
+			playerChar: playerChar,
+		};
+
+		// loop through all the rooms:
+		var i = characterList.length;
+		while (i--) {
+			console.log (characterList[i].scriptName);
+			saveChars[characterList[i].scriptName] = characterList[i]._getSaveData();
+		}
+
+		game._saveData.character = saveChars;
+	});
+
+    // process a load event
+	game.addEventListener ('onSavegameLoad', function () {
+
+        // get the data to build the characters from.
+        var characterConfig = game._saveData.character;
+
+        // split the options from the rest of the settings object:
+        _options = characterConfig.settings;
+        delete characterConfig.settings;
+
+        playerChar = _options.playerChar;
+
+		// loop through all the rooms in the save:
+		for (var charName in characterConfig) {
+			var r = Character.get(charName);
+
+			// change all the properties of the current rooms to the saved props.
+			for (var variable in characterConfig[charName]) {
+                // room changing:
+                if (variable === 'roomName') {
+                    r.changeRoom(characterConfig[charName][variable]);
+                }
+                else {
+                    r[variable] = characterConfig[charName][variable];
+                }
+			}
+		}
+
+		console.log ('CHARACTER: Load -> all character properties loaded.');
+	});
+
+    game.addEventListener ('afterSavegameLoad', function () {
+        var player = Character.getPlayer();
+        // change the room if the player character is not in its room anymore
+        if (Room.getCurrent() !== player.roomName) {
+            player.changeRoom(player.roomName);
+        }
+    });
 
     // add listeners to events:
     game.addEventListener('prepare', createCharacters);

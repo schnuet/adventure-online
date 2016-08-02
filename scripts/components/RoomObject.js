@@ -69,7 +69,8 @@ Game.addComponent ('room_object', ['room', 'interactive_object', 'animatable_obj
         var room = Room.get(roomName);
         room.addElement(object);
 
-        console.log ('RoomObject: loaded object ' + object.name);
+        console.log ('RoomObject: loaded object ' + object.name, object);
+        console.log (object.interactive);
     }
 
 
@@ -99,6 +100,14 @@ Game.addComponent ('room_object', ['room', 'interactive_object', 'animatable_obj
                 }
             }
         }
+    });
+
+    game.addEventListener ('beforeSave', function () {
+
+        // loop through all the rooms:
+        //for (var roomId in Room.roomList) {
+        //
+        //}
     });
 
     return {

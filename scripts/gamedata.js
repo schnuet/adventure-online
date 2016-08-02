@@ -9,7 +9,7 @@ var gameData = function (game) {
         },
         room : {
             options: {
-                startRoom: 'rTest'
+                currentRoom: 'rTest'
             },
             rTest: {
                 image: 'r_standard.png',

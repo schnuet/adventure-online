@@ -3,26 +3,34 @@
 
 Game.addComponent ('animatable_object', ['renderer', 'loader', 'interactive_object'], function (game, renderer, loader, InteractiveObject) {
 
+    // set the default settings:
+    var DEFAULTS = {
+        autoplay: true,                 // _play the animation after loading
+        animationSpeed: 0.5,            // _default: 1 -> 60 fps.
+        views: [],
+        anchor: {
+            x: 0,
+            y: 0
+        },
+        onFrame : function (frame) {
+
+        }
+    };
+
+    // vars that should not be set in the options, but have to be saved:
+    var saveValues = [];
+
     AnimatableObject = function (scriptName, options) {
         renderer.MovieClip.call(this, [PIXI.Texture.EMPTY]);
 
-        this.construct.call(this, scriptName, options, AnimatableObject.DEFAULTS);
+        options = this._getDefaultProperties (options, DEFAULTS);
+
+        this.construct.call(this, scriptName, options);
 
         this._resourceList = [];
 
-        _loadViews.apply(this)
+        _loadViews.apply(this);
     };
-
-    // set the default settings:
-    AnimatableObject.DEFAULTS = InteractiveObject.DEFAULTS;
-
-    AnimatableObject.DEFAULTS.autoplay = true;       // _play the animation after loading
-    AnimatableObject.DEFAULTS.animationSpeed = 0.5;  // _default: 1 -> 60 fps.
-    AnimatableObject.DEFAULTS.views = [''];
-    AnimatableObject.DEFAULTS.anchor = {x: 0, y: 0};
-    AnimatableObject.DEFAULTS.onFrame = function (frame) {};
-
-
 
     AnimatableObject.prototype = Object.create(renderer.MovieClip.prototype);
     AnimatableObject.constructor = AnimatableObject;
@@ -100,6 +108,24 @@ Game.addComponent ('animatable_object', ['renderer', 'loader', 'interactive_obje
 
         this._loaded = true;
     };
+
+    AnimatableObject.prototype._getSaveData = function () {
+
+        // save all the default values from the inherited class
+        var saveData = InteractiveObject.prototype._getSaveData.call(this);
+
+		for (var property in DEFAULTS) {
+			if (this.hasOwnProperty(property)) {
+				saveData[property] = this[property];
+			}
+		}
+		var i = saveValues.length;
+		while (i--) {
+			saveData[saveValues[i]] = this[saveValues[i]];
+		}
+
+		return saveData;
+	};
 
     AnimatableObject.prototype.update = function (deltaTime) {
         renderer.MovieClip.prototype.update.call(this, deltaTime);

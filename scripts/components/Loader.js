@@ -180,32 +180,6 @@ Game.addComponent ('loader', [], function (game) {
 			callback (new AudioDummy ());
 			WaitToLoad ();
 		}
-	}
-
-	// Überprüft, ob Bilder geladen haben und gibt Anweisungen für den Fall, wenn ja und wenn nicht.
-	function WaitToLoad () {
-		if (resToLoadCount > 0) { 				// Falls noch Bilder am Laden sind, wird das auf dem Bildschirm angezeigt.
-			DrawLoadingScreen ("Noch " + resToLoadCount + " Objekte zu laden.");
-		}
-		else if  (resToLoadCount == 0){		// Falls alle Bilder fertig geladen sind, werden die nächsten Schritte eingeleitet.
-			DrawLoadingScreen ("Alles fertig geladen.");
-
-			// Alle Szenen- und Objektdaten werden geschrieben.
-			BuildGame ();
-
-			// Ab jetzt sollen clicks und Mauspositionen behandelt werden.
-			parentdiv.addEventListener ("mousemove", mouse.onMove, true); //cv_scene
-			parentdiv.addEventListener ("mousedown", mouse.onClick, true); //cv_scene
-			parentdiv.oncontextmenu = function() {	// Kontextmenü ausschalten.
-			   return false;
-			}
-
-			// Der erste Raum wird geladen, der Spielzyklus wird gestartet.
-			room[roomName].load ();
-			room_cycle = setInterval (game_cycle, 1000/60);
-			drawGame ();
-		}
-		else d_log (resToLoadCount);
 	}*/
 
 	return new Loader();

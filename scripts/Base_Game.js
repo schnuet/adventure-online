@@ -51,8 +51,8 @@
         this.runningActions = false;
         this._currentAction = null;
 
-        // Der Container, in dem sich alle Zeichenflächen befinden
-        this.parentdiv = null;
+        // used for save events:
+        this._saveData = {};
 
         // Modules
         this._loadedComponents = {};
@@ -89,6 +89,42 @@
     Game.prototype.init = function () {
         this.triggerEvent('init');
         this.addEventListener('update', this.doActions.bind(this));
+    };
+
+
+    // ************** SAVING / LOADING *****************
+
+    // JSON.stringify(value);
+    // JSON.parse(value);
+    Game.prototype.save = function (slot) {
+        // if no saveslot was specified, save to autosave-slot 0.
+        if (typeof slot === 'undefined') slot = 0;
+
+        this.triggerEvent('beforeSave');
+
+        var saveData = this._saveData;
+        console.log (saveData);
+
+        var textSaveData = JSON.stringify(saveData);
+        console.log (textSaveData);
+
+        localStorage.setItem('save' + slot, textSaveData);
+        console.log ('SAVING: saved data to save' + slot);
+    };
+
+    Game.prototype.load = function (slot) {
+        // if no saveslot was specified, load from autosave-slot 0.
+        if (typeof slot === 'undefined') slot = 0;
+
+        var textSaveData = localStorage.getItem('save' + slot);
+        console.log ('LOADING: loaded save' + slot, textSaveData);
+
+        this._saveData = JSON.parse(textSaveData);
+        console.log (this._saveData);
+
+        this.triggerEvent('onSavegameLoad');
+
+        this.triggerEvent('afterSavegameLoad');
     };
 
     // ************** ACTION LIST **********************
