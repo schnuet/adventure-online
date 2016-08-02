@@ -4,34 +4,47 @@ Game.addComponent ('room', ['renderer', 'loader'], function (game, renderer, loa
 
 	// ***************** ROOM OBJECT *****************
 
-	// options: {
-	//		name		_ a readable, descriptive Name of the room
-	//		music		_ the name of the music file to play in that room
-	//	}
+	var DEFAULTS = {
+		name: '',		// _ a readable, descriptive Name of the room
+		music: '',		// _ the name of the music file to play in that room
+		loop: true,
 
-	var Room = function (image, width, height, scriptName, options) {
+		enter : function () {},
+		repEx : function () {},
+		leave : function () {}
+	}
+
+	var Room = function (scriptName, options) { // image, width, height, scriptName, options) {
 
 		// create the layer this room will be drawn in:
 		this.layer = new renderer.Layer();
-		this.backgroundImg = image;
+		this.backgroundImg = options.image;
 
-		// save the options:
+		// save the important options:
 		this.scriptName = scriptName;
-		this.width = width;
-		this.height = height;
-		if (options.name) this.name = options.name;
-		if (options.music) {
-			this.music = options.music;
-			if (this.music) this.music.loop = true;
+		this.width = options.width;
+		this.height = options.height;
+
+		// save the optional options:
+		// get all the options from the option object
+		for (var variable in DEFAULTS) {
+			///console.log (variable, options[variable]);
+			if (options.hasOwnProperty(variable)) {
+				this[variable] = options[variable];
+				//console.log (variable, options[variable]);
+			}
+			else {
+				this[variable] = DEFAULTS[variable];
+			}
+		}
+
+		if (this.music) {
+			if (this.loop) this.music.loop = true;
 		}
 
 		this._resourceList = [
-			image
+			this.backgroundImg
 		];
-
-		this.enter = null;
-		this.repEx = null;
-		this.leave = null;
 
 		this.visited = 0;
 
@@ -70,7 +83,7 @@ Game.addComponent ('room', ['renderer', 'loader'], function (game, renderer, loa
 
 		// if a room is currently loaded, unload that one first.
 		if (currentRoom !== '') {
-			roomList[currentRoom].unload();
+			roomList[roomMap[currentRoom]].unload();
 		}
 
 		currentRoom = this.scriptName;
@@ -98,7 +111,7 @@ Game.addComponent ('room', ['renderer', 'loader'], function (game, renderer, loa
 
 
 
-		console.log ('Room: Raum ' + this.scriptName + ' geladen. ', this);
+		console.log ('Room: Raum ' + this.scriptName + ' geladen. ');
 	};
 
 	Room.prototype.unload = function () {
@@ -115,6 +128,8 @@ Game.addComponent ('room', ['renderer', 'loader'], function (game, renderer, loa
 		// call leave action of the room.
 		if (this.leave) this.leave ();
 
+		renderer.removeLayer(this.layer);
+
 		currentRoom = '';
 		currentRoomNbr = -1;
 	};
@@ -122,7 +137,7 @@ Game.addComponent ('room', ['renderer', 'loader'], function (game, renderer, loa
 	// === internal functions ===
 
 	Room.prototype._handleClick = function (event) {
-		var point = event.data.getLocalPosition(this.layer);
+		var point = event.data.getLocalPosition(this.background);
 		game.triggerEvent('room_click', point, event);
 		//console.log ('Room clicked ', point);
 	};
@@ -134,13 +149,15 @@ Game.addComponent ('room', ['renderer', 'loader'], function (game, renderer, loa
 		this.background.z = -500;
 		this.layer.addChild(this.background);
 
-		this.layer.interactive = true;
-		this.layer.on('mouseup', this._handleClick.bind(this));
+		this.background.interactive = true;
+		this.background.on('mouseup', this._handleClick.bind(this));
 
 		renderer.addLayer(this.layer);
 
 		if (this.enter) this.enter ();
 		game.triggerEvent('room_loaded', this.scriptName);
+
+		console.log ('------ room completely loaded -----');
 
 		game.addEventListener ('update', this._onCycle.bind(this));
 	};
@@ -167,6 +184,8 @@ Game.addComponent ('room', ['renderer', 'loader'], function (game, renderer, loa
 		return roomList[roomId];
 	};
 	Room.load = function (roomName) {
+		console.log ('-------------------------------');
+		console.log ('Room: Loading room ' + roomName);
 		Room.get(roomName).load();
 	};
 
@@ -187,11 +206,11 @@ Game.addComponent ('room', ['renderer', 'loader'], function (game, renderer, loa
 		// make rooms from the rest of the array:
 		for (var roomName in roomConfig) {
 			if (roomConfig.hasOwnProperty(roomName)) {
-				new Room (roomConfig[roomName].image,
+				new Room (roomName, roomConfig[roomName]); /*.image,
 				 			roomConfig[roomName].width,
 							roomConfig[roomName].height,
 							roomName,
-							roomConfig[roomName].options);
+							roomConfig[roomName].options);*/
 			}
 		}
 

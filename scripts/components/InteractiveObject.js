@@ -24,6 +24,7 @@ Game.addComponent ('interactive_object', ['renderer', 'loader'], function (game,
             height: 0,              //  _height of the image
             baseline: 1,
             name: '',               //  _a readable display name (eg. 'Fernseher')
+            tint: 0xFFFFFF,         //  _changing color of the object
 
                                     //  _some function hooks
             onClick: function() {},
@@ -69,6 +70,7 @@ Game.addComponent ('interactive_object', ['renderer', 'loader'], function (game,
 
         // internal vars:
         this._clickedAt = false;
+        this._loaded = false;
 
         // setup events
         this
@@ -96,9 +98,11 @@ Game.addComponent ('interactive_object', ['renderer', 'loader'], function (game,
     InteractiveObject.extendedPrototype._attachLoadedTexture = function () {
         this.texture = loader.resources[this.image].texture;
         this._updatePropsAfterLoad();
+        this._loaded = true;
     };
 
     InteractiveObject.extendedPrototype._updatePropsAfterLoad = function () {
+        this.scale.x = this.scale.y = 1;
         if (this._afterLoadOptions.height) this.height = this._afterLoadOptions.height;
         if (this._afterLoadOptions.width) this.width = this._afterLoadOptions.width;
         if (this._afterLoadOptions.baseline) this.baseline = this._afterLoadOptions.baseline * this.height;
@@ -121,6 +125,10 @@ Game.addComponent ('interactive_object', ['renderer', 'loader'], function (game,
             if (!game.currentState.blockingAction) {
                 event.stopPropagation();
                 this.onClick();
+            }
+            else if (typeof game.currentState.passAction === 'function') {
+                console.log ('Interaction: aborted current action.');
+                game.currentState.passAction();
             }
             else {
                 console.log ('Interaction: Click ignored.');

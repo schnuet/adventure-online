@@ -95,6 +95,9 @@ Game.addComponent ('renderer', [], function (game) {
         this.stage.addChild(layer);
         this.stage.children.sort(depthCompare);
     };
+    Renderer.prototype.removeLayer = function (layer) {
+        this.stage.removeChild(layer);
+    };
 
     // ========= EXTENDING CLASSES ==========
 

@@ -15,8 +15,23 @@ var gameData = function (game) {
                 image: 'r_standard.png',
                 width: 1920,
                 height: 480,
-                options: {}
-                //scriptName: 'rTest'
+                enter: function () {
+                    var player = Character.getPlayer();
+                    if (player.previousRoom === 'rTest2') {
+                        player.walk(100, player.y, true);
+                    }
+                }
+            },
+            rTest2: {
+                image: 'r_yellow.png',
+                width: 1920,
+                height: 480,
+                enter: function () {
+                    var player = Character.getPlayer();
+                    if (player.previousRoom === 'rTest') {
+                        player.walk(game.settings.width - 100, player.y, true);
+                    }
+                }
             }
         },
         room_object: {
@@ -31,8 +46,9 @@ var gameData = function (game) {
                     height: 199,
                     name: 'Bücher',
                     onClick: function () {
-                        Character.getPlayer().walk(this.x, this.y, false, function () {
-                            console.log ('He is there.');
+                        var player = Character.getPlayer();
+                        player.walk(0, player.y, false, function () {
+                            player.changeRoom('rTest2', game.settings.width, player.y);
                         });
                     }
                 },
@@ -43,6 +59,7 @@ var gameData = function (game) {
                         x: 300,
                         y: 0
                     },
+                    tint: 0xAAFFAA,
                     views: ['bird/talk'],
                     name: 'Animationstest',
                     onClick: function () {
@@ -56,6 +73,22 @@ var gameData = function (game) {
                     }
                 }
             },
+            rTest2: {
+                oLaptop: {
+                    position: {
+                        x: 400,
+                        y: 10
+                    },
+                    image: 'o_laptop.png',
+                    name: 'Ein Laptop',
+                    onClick: function () {
+                        var player = Character.getPlayer();
+                        player.walk(this.x, player.y, false, function () {
+                            player.changeRoom('rTest', 0, player.y);
+                        });
+                    }
+                }
+            }
         },
         character: {
             jeff: {
@@ -75,7 +108,10 @@ var gameData = function (game) {
                     left: 'bird/walk_left'
                 },
                 talkViews: {
-                    down: 'bird/talk'
+                    down: 'bird/talk',
+                    right: 'bird/talk',
+                    left: 'bird/talk',
+                    up: 'bird/talk'
                 },
                 name: 'Jeff',
                 onClick: function () {
@@ -87,6 +123,34 @@ var gameData = function (game) {
                         this.play();
                         console.log ('starting Jeff.');
                     }
+                }
+            },
+            otherJeff: {
+                animationSpeed: 0.25,
+                walkspeed: 6,
+                roomName: 'rTest2',
+                position: {
+                    x: 785,
+                    y: 370
+                },
+                tint: 0xFF8888,
+                views: ['bird/walk_right', 'bird/walk_left', 'bird/talk'],
+                dirViews: {
+                    right: 'bird/walk_right',
+                    down: 'bird/talk',
+                    left: 'bird/walk_left'
+                },
+                talkViews: {
+                    down: 'bird/talk',
+                    right: 'bird/talk',
+                    left: 'bird/talk',
+                    up: 'bird/talk'
+                },
+                name: 'Anderer Jeff',
+                onClick: function () {
+                    Character.getPlayer().say('Das ist wohl noch ein Jeff.');
+                    game.wait(1000);
+                    this.say('Ach ja. So ist das.');
                 }
             }
         },

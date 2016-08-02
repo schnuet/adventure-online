@@ -63,7 +63,7 @@ Game.addComponent ('room_object', ['room', 'interactive_object', 'animatable_obj
         if (roomName !== object.roomName) return;
 
         // create the image element of the object
-        object._attachLoadedTexture ();
+        if (!object._loaded) object._attachLoadedTexture ();
 
         // add the element to the room layer
         var room = Room.get(roomName);

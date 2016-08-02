@@ -33,6 +33,13 @@ Game.addComponent ('loader', [], function (game) {
 		game.addEventListener ('init', this.loadMedia.bind(this, this.toLoad, this._afterInitialLoad));
 	};
 
+	// a helper function that eliminates duplicates in an array:
+	function uniq(arr) {
+	    return arr.sort().filter(function(item, pos, ary) {
+	        return !pos || item != ary[pos - 1];
+	    })
+	}
+
 	Loader.prototype.loadMedia  = function (mediaList, callback) {
 
 		if (mediaList.length === 0) {
@@ -41,18 +48,33 @@ Game.addComponent ('loader', [], function (game) {
 			return;
 		}
 
+		mediaList = uniq(mediaList);
+
 		console.log ('Loader: media list to load: ', mediaList);
 
 		//this.loader.reset();
+
+		var newRessources = 0;
 
 		// add every picture to load list
 		var i = mediaList.length;
 		while (i--) {
 			// add the resource - if it is not loaded yet.
-			if (!this.resources[mediaList[i]]) this.loader.add(mediaList[i], basePath + mediaList[i]);
+			if (!this.resources[mediaList[i]]) {
+				this.loader.add(mediaList[i], basePath + mediaList[i]);
+				newRessources++;
+			}
 		}
 
-		this.loader.load(this._mediaLoaded.bind(this, callback));
+		// if any new ressources have been added to the loader, load them:
+		if (newRessources > 0) {
+			this.loader.load(this._mediaLoaded.bind(this, callback));
+		}
+		// if all ressources have already been loaded, call the callback directly:
+		else {
+			console.log ('Loader: All resources already loaded. Proceeding.');
+			callback();
+		}
 
 		return this;
 		//DrawLoadingScreen ("Der Header wird geladen.");
@@ -68,13 +90,14 @@ Game.addComponent ('loader', [], function (game) {
 	// ==== internal functions ====
 
 	Loader.prototype._mediaLoaded = function (callback, loader, resources) {
-		console.log ('Loader: loaded resources. ', resources);
 		this.resources = resources;
+		console.log ('Loader: loaded resources. ', this.resources);
 		callback();
 	};
 
 	Loader.prototype._afterInitialLoad = function () {
 		game.triggerEvent('game_loaded');
+		console.log ('------- game successfully loaded -------');
 	};
 
 	// Zeichnet einen Ladebildschirm auf das Bild

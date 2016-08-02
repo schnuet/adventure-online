@@ -8,6 +8,7 @@ Game.addComponent ('character', ['animatable_object', 'room', 'loader', 'rendere
         // change object defaults to character defaults:
         if (typeof options.anchor === 'undefined') options.anchor = {x: 0.5, y: 1};
         if (typeof options.baseline === 'undefined') options.baseline = 0;
+        if (typeof options.autoplay === 'undefined') options.autoplay = false;
 
 
         // get parent settings
@@ -64,13 +65,12 @@ Game.addComponent ('character', ['animatable_object', 'room', 'loader', 'rendere
     // ===== public functions ====
 
     Character.prototype.say = function (text) {
-        this._actionList.push({action: 'say', text: text, blocking: true});
-        this.doStuff = true;
+        game.pushAction (this, {action: 'say', text: text, blocking: true});
     };
 
     Character.prototype.walk = function (x, y, blocking, callback) {
-        this._actionList.push({action: 'move', goal: {x, y}, blocking: blocking, callback: callback});
-        this.doStuff = true;
+        game.pushAction (this, {action: 'move', goal: {x, y}, blocking: blocking, callback: callback});
+        //this._actionList.push({action: 'move', goal: {x, y}, blocking: blocking, callback: callback});
     };
 
     Character.prototype.setAsPlayer = function () {
@@ -79,8 +79,19 @@ Game.addComponent ('character', ['animatable_object', 'room', 'loader', 'rendere
 
     Character.prototype.changeRoom = function (roomName, x, y, dir) {
         Room.get(this.roomName).removeElement(this);
+        this.previousRoom = this.roomName;
         this.roomName = roomName;
 
+        // add the character to its room.
+        Room.get(this.roomName).addElement(this);
+
+        if (typeof x !== 'undefined') this.x = x;
+        if (typeof y !== 'undefined') this.y = y;
+        if (typeof y !== 'undefined') this.changeDir (dir);
+
+        if (playerChar === this.scriptName) {
+            Room.load(roomName);
+        }
     };
 
     Character.prototype.changeDir = function (dirName) {
@@ -98,6 +109,52 @@ Game.addComponent ('character', ['animatable_object', 'room', 'loader', 'rendere
 
     // ==== internal functions ====
 
+    Character.prototype.runAction = function (action) {
+        // in case that we interrupted an action (when blocking: false), we reset the action flags:
+        this.moving = false;
+        if (this._currentAction !== null) console.log ('Character: action interrupted: ' + this._currentAction.action);
+
+        this._currentAction = action;
+
+        if (this._currentAction.action === 'move') {
+            this._movementVector = this._calculateMovementVector(this._currentAction.goal);
+            this._updateDirection (this._movementVector);
+            this.play();
+            this.moving = true;
+        }
+
+        if (this._currentAction.action === 'say') {
+            this._textDisplayed = true;
+            this.speaking = true;
+
+            // create and position a new text element:
+            this._currentText = new renderer.Text(this._currentAction.text);
+            this._currentText.anchor.x = 0.5;
+            this._currentText.x = 0;
+            this._currentText.y = -this.height;
+            this.addChild (this._currentText);
+
+            // set a game flag that says that there is currently an
+            // action running that blocks additions to action queues
+            game.currentState.blockingAction = true;
+
+            // provide a game-wide way to jump over the action:
+            game.currentState.passAction = this._stopTalking.bind(this);
+
+            // remove the text after a while
+            this._textTimeout = setTimeout(this._stopTalking.bind(this), 3000);     // TODO: calculate time.
+
+            // change the animation to the talking animation for the current direction (if available)
+            if (this._talkViews[this.dir]) {
+                console.log ('changing to talk view ' + this.dir);
+                this.changeView(this._talkViews[this.dir]);
+                this.play();
+            }
+        }
+
+        this.doStuff = true;
+    };
+
     // the 'update' method of the character.
     // method name 'update' is already taken, used for animation.
     Character.prototype._onCycle = function (deltaT) {
@@ -106,45 +163,10 @@ Game.addComponent ('character', ['animatable_object', 'room', 'loader', 'rendere
             this.doStuff = false;
 
             // get the next goal if don't have one or the action can be jumped over.
-            if ((this._currentAction === null || this._currentAction.blocking === false) && this._actionList.length > 0) {
+            /*if ((this._currentAction === null || this._currentAction.blocking === false) && this._actionList.length > 0) {
 
-                // in case that we interrupted an action (when blocking: false), we reset the action flags:
-                this.moving = false;
-                if (this._currentAction !== null) console.log ('Character: action interrupted: ' + this._currentAction.action);
-
-                this._currentAction = this._actionList.shift();
-
-                if (this._currentAction.action === 'move') {
-                    this._movementVector = this._calculateMovementVector(this._currentAction.goal);
-                    this._updateDirection (this._movementVector);
-                    this.play();
-                    this.moving = true;
-                }
-
-                if (this._currentAction.action === 'say') {
-                    this._textDisplayed = true;
-                    this.speaking = true;
-
-                    // create and position a new text element:
-                    this._currentText = new renderer.Text(this._currentAction.text);
-                    this._currentText.anchor.x = 0.5;
-                    this._currentText.x = 0;
-                    this._currentText.y = -this.height;
-                    this.addChild (this._currentText);
-
-                    // set a game flag that says that there is currently an
-                    // action running that blocks additions to action queues
-                    game.currentState.blockingAction = true;
-
-                    // remove the text after a while
-                    setTimeout(this._stopTalking.bind(this), 3000);     // TODO: calculate time.
-
-                    // change the animation to the talking animation for the current direction (if available)
-                    if (this._talkViews[this.dir]) {
-                        this.changeView(this._talkViews[this.dir]);
-                    }
-                }
-            }
+                this.runAction (this._actionList.shift());
+            }*/
 
             // handle moving/walking stuff
             if (this.moving === true) {
@@ -166,7 +188,7 @@ Game.addComponent ('character', ['animatable_object', 'room', 'loader', 'rendere
                         this._actionList = this._actionList.concat(listBuffer);
                         delete listBuffer;
 
-                        console.log ('callback happened - new list: ', this._actionList);
+                        //console.log ('callback happened - new list: ', this._actionList);
                     }
 
                     this.moving = false;
@@ -186,20 +208,20 @@ Game.addComponent ('character', ['animatable_object', 'room', 'loader', 'rendere
                     this._currentAction = null;
                     this.speaking = false;
                     this.gotoAndStop(0);
-
-                    // remove the blocking flag
-                    game.currentState.blockingAction = false;
                 }
                 this.doStuff = true;
             }
             // if none of the actions were called, we must be finished with the action cycle.
             else {
-
+                game.nextAction();
             }
         }
     };
 
     Character.prototype._stopTalking = function () {
+        if (game.currentState.passAction === this._stopTalking)
+            game.currentState.passAction = null;
+        clearTimeout(this._textTimeout);
         this._textDisplayed = false;
     };
 
@@ -233,18 +255,6 @@ Game.addComponent ('character', ['animatable_object', 'room', 'loader', 'rendere
             v = {x: dX, y: dY};
         }
         return v;
-    };
-
-    Character.prototype.handleMouseUp = function () {
-        if (this._clickedAt) {
-            this._clickedAt = false;
-
-            console.log ('new click handler?');
-            if (this.speaking) this._stopTalking();
-
-            // user-editable click event hook
-            else this.onClick();
-        }
     };
 
     Character.prototype._attachLoadedTexture = function () {
@@ -293,8 +303,18 @@ Game.addComponent ('character', ['animatable_object', 'room', 'loader', 'rendere
     var handleRoomClick = function (clickPlace, event) {
         if (playerChar !== '') {
             var p = Character.getPlayer();
-            if (p.speaking) p._stopTalking();
-            else p.walk(clickPlace.x, clickPlace.y, false);
+
+            // user-editable click event hook
+            if (!game.currentState.blockingAction) {
+                p.walk(clickPlace.x, clickPlace.y, false);
+            }
+            else if (typeof game.currentState.passAction === 'function') {
+                console.log ('Character - Room Click: aborted current action.');
+                game.currentState.passAction();
+            }
+            else {
+                console.log ('Character - Room Click: Click ignored.');
+            }
         }
         else console.error('No player character defined.');
     };

@@ -98,6 +98,7 @@ Game.addComponent ('animatable_object', ['renderer', 'loader', 'interactive_obje
             this.play();
         }
 
+        this._loaded = true;
     };
 
     AnimatableObject.prototype.update = function (deltaTime) {

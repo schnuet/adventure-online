@@ -35,13 +35,21 @@
         // e.g. the current hover text, the selected action
         // in short: nothing worth saving.
         this.currentState = {
-            
+
         };
 
         // this is a container where you can put all the variables of your logic
         // that don't fit anywhere else.
         // e.g. didHeroSeeTheCat: false
         this.vars = {};
+
+        // an array for chaining multiple actions in the game
+        // so that different characters can wait for each other, etc.
+        this.actionList = [];
+
+        // a boolean controlling the flow of the action.
+        this.runningActions = false;
+        this._currentAction = null;
 
         // Der Container, in dem sich alle Zeichenflächen befinden
         this.parentdiv = null;
@@ -80,12 +88,44 @@
 
     Game.prototype.init = function () {
         this.triggerEvent('init');
+        this.addEventListener('update', this.doActions.bind(this));
     };
 
+    // ************** ACTION LIST **********************
 
-    Game.prototype.start = function (loader, resources) {
+    Game.prototype.doActions = function () {
+        if (this.runningActions) {
+            this.runningActions = false;
 
+            // get the next goal if don't have one or the action can be jumped over.
+            if ((this._currentAction === null || this._currentAction.blocking === false) && this.actionList.length > 0) {
+                var a = this.actionList.shift();
+                this._currentAction = a.action;
+                a.element.runAction(a.action);
+            }
+        }
+    };
+    // add an action to the action queue:
+    Game.prototype.pushAction = function (element, action) {
+        this.actionList.push ({element: element, action: action});
+        this.runningActions = true;
+    };
+    // a method to mark the end of an action execution.
+    Game.prototype.nextAction = function () {
+        game.currentState.blockingAction = false;
+        this._currentAction = null;
+        this.runningActions = true;
+    };
 
+    // add a waiting action (wait for ... milliseconds)
+    Game.prototype.wait = function (time) {
+        this.pushAction (this, {action: 'wait', time: time});
+    };
+    Game.prototype.runAction = function (action) {
+        if (action.action === 'wait') {
+            game.currentState.blockingAction = true;
+            setTimeout (this.nextAction.bind(this), action.time);
+        }
     };
 
     // ************** STATIC METHODS **********************
