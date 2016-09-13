@@ -13,9 +13,7 @@
     // base game object.
     var Game = function (settingsObject, gameData) {
 
-        // ------------ vars -------------
-
-        this.gameData = gameData(this);
+        // ----------- settings ------------
 
         // the settings object is used for the general settings of the game
         // that do not influence gameplay directly
@@ -26,6 +24,16 @@
             scale: 1,
             fontsize: 30,
         };
+
+        // take the passed settings:
+        for (var attrname in settingsObject) {
+            this.settings[attrname] = settingsObject[attrname];
+        }
+
+        // ------------ other vars -------------
+
+        this.gameData = gameData(this);
+
 
         this.data = {
             waiting: false
@@ -59,11 +67,6 @@
 
 
         // ---------- construction ------------
-
-        // take the passed settings:
-        for (var attrname in settingsObject) {
-            this.settings[attrname] = settingsObject[attrname];
-        }
 
         // create event loads all the required modules.
         this.triggerEvent('create');
@@ -216,16 +219,31 @@
         delete componentCalls;
     };
 
-    Game.prototype.mixinPrototype = function (prototypeA, prototypeB, overwrite) {
-        for ( var property in prototypeB ) {
-            if ( prototypeB.hasOwnProperty(property) ) {
-                if (overwrite || prototypeA.hasOwnProperty(property) === false) {
-                    prototypeA[property] = prototypeB[property];
+    /**
+     *  Inserts the methods of a prototype to a different prototype
+     *
+     */
+    Game.prototype.mixinPrototype = function (receiver, donator, overwrite) {
+        // loop through all the properties of the donator prototype:
+        for ( var property in donator ) {
+            if ( donator.hasOwnProperty(property) ) {
+
+                // if the receiver does not have the property (or if we chose to overwrite it)
+                // save the property/method to the receiving object
+                if (overwrite || receiver.hasOwnProperty(property) === false) {
+                    receiver[property] = donator[property];
                 }
             }
         }
     };
 
+    Game.prototype.mixinComponent = function (receiver, donator, overwrite) {
+        this.mixinPrototype(receiver.prototype, donator.prototype, overwrite);
+
+        // save the component to the list of parent components:
+        if (typeof receiver._parentComponents !== 'array') receiver._parentComponents = [];
+        receiver._parentComponents.push (donator);
+    };
 
 
 

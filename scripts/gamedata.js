@@ -1,11 +1,13 @@
 var gameData = function (game) {
     var Room = {};
     var Character = {};
+    var Gui = {};
 
     return {
         connect: function () {
             Character = game._loadedComponents.character;
             Room = game._loadedComponents.room;
+            Gui = game._loadedComponents.gui;
         },
         room : {
             options: {
@@ -205,6 +207,104 @@ var gameData = function (game) {
                         'walk_left_2.png',
                         'walk_left_1.png'
                     ]
+                }
+            }
+        },
+        gui: {
+            menubar: {
+                visible: true,
+                elements: {
+                    menubutton: {
+                        type: 'graphic',
+                        text: 'menü',
+                        textStyle: {
+                            font : 'normal 16px Arial',
+                        },
+                        textPosition: {
+                            x: 10,
+                            y: 10
+                        },
+                        position: {
+                            x: game.settings.width - 200,
+                            y: 0
+                        },
+                        size: {
+                            w: 200,
+                            h: 50
+                        },
+                        lineColor: 0x0000FF,
+                        lineWidth: 2,
+                        lineAlpha: 1,
+                        onClick: function () {
+                            var gMenu = Gui.get('saveLoadMenu');
+                            if (gMenu.visible) {
+                                gMenu.hide();
+                            }
+                            else gMenu.show();
+                            console.log ('clicked menu button');
+                        }
+                    }
+                }
+            },
+            saveLoadMenu: {
+                visible: false,
+                position: {
+                    x: 50,
+                    y: 50
+                },
+                elements: {
+                    savebutton: {
+                        type: 'graphic',
+                        text: 'speichern',
+                        textStyle: {
+                            font : 'normal 15px Arial',
+                        },
+                        textPosition: {
+                            x: 10,
+                            y: 10
+                        },
+                        position: {
+                            x: 0,
+                            y: 0
+                        },
+                        size: {
+                            w: 200,
+                            h: 50
+                        },
+                        lineColor: 0x0000AA,
+                        lineWidth: 2,
+                        lineAlpha: 1,
+                        onClick: function () {
+                            console.log ('clicked save button');
+                            game.save();
+                        }
+                    },
+                    loadbutton: {
+                        type: 'graphic',
+                        text: 'laden',
+                        textStyle: {
+                            font : 'normal 15px Arial',
+                        },
+                        textPosition: {
+                            x: 10,
+                            y: 10
+                        },
+                        position: {
+                            x: 210,
+                            y: 0
+                        },
+                        size: {
+                            w: 200,
+                            h: 50
+                        },
+                        lineColor: 0x0000AA,
+                        lineWidth: 2,
+                        lineAlpha: 1,
+                        onClick: function () {
+                            console.log ('clicked load button');
+                            game.load();
+                        }
+                    }
                 }
             }
         }

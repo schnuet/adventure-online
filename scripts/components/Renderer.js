@@ -120,6 +120,8 @@ Game.addComponent ('renderer', [], function (game) {
     Renderer.prototype.Sprite = PIXI.Sprite;
     Renderer.prototype.MovieClip = PIXI.extras.MovieClip;
     Renderer.prototype.Text = PIXI.Text;
+    Renderer.prototype.Graphics = PIXI.Graphics;
+    Renderer.prototype.Rectangle = PIXI.Rectangle;
 
     // Die Funktion, um das Bild neu zu zeichnen.
     /*function drawScene () {

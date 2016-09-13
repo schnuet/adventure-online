@@ -1,14 +1,10 @@
+/**
+ *  The Game Object is a base object that provides some functions all the different game elements might need.
+ *  It can't be used by itself, though.
+ */
+Game.addComponent ('game_object', [], function (game) {
 
-Game.addComponent ('interactive_object', ['renderer', 'loader'], function (game, renderer, loader) {
-
-
-    function InteractiveObject (scriptName, options) {
-        renderer.Sprite.call(this, null);
-
-        this.construct(scriptName, options, DEFAULTS);
-    };
-
-    // the interactive object: default options:
+    // the game object default options:
     var DEFAULTS =
     {
             image: '',              //  _image name to use (required)
@@ -31,20 +27,12 @@ Game.addComponent ('interactive_object', ['renderer', 'loader'], function (game,
             onMouseOut: function() {}
     };
 
-    // vars that should not be set in the options, but have to be saved:
-    var saveValues = [];
+    function GameObject () {
 
-    InteractiveObject.prototype = Object.create(renderer.Sprite.prototype);
-    InteractiveObject.constructor = InteractiveObject;
-
-    InteractiveObject.prototype.DEFAULTS = DEFAULTS;
-
-    InteractiveObject.extendedPrototype = {};
-
-    // ================== functions =================
+    }
 
     // the core constructor function.
-    InteractiveObject.extendedPrototype.construct = function (scriptName, options) {
+    GameObject.prototype.construct = function (scriptName, options) {
         this.scriptName = scriptName;
 
         options = this._getDefaultProperties (options, DEFAULTS);
@@ -91,8 +79,8 @@ Game.addComponent ('interactive_object', ['renderer', 'loader'], function (game,
 
     // === internal methods ===
 
-    // save all the options in the options to the InteractiveObject, if a default value exists for them
-    InteractiveObject.extendedPrototype._getDefaultProperties = function (options, defaults) {
+    // save all the options in the options to the GameObject, if a default value exists for them
+    GameObject.prototype._getDefaultProperties = function (options, defaults) {
 
         // create an internal var to save if we set an option at any point:
         if (typeof this['_alreadySet'] === 'undefined') this['_alreadySet'] = [];
@@ -112,27 +100,27 @@ Game.addComponent ('interactive_object', ['renderer', 'loader'], function (game,
 
                 // delete the option, we hav deelt wit it.
                 delete options[variable];
-                //console.log ('deleted ' + variable);
                 this._alreadySet.push(variable);
             }
             // don't overwrite properties if they were already set.
             else if (this._alreadySet.indexOf(variable) === -1) {
                 this[variable] = defaults[variable];
                 this._alreadySet.push(variable);
-                //console.log (this.scriptName + ' initial set: ' + variable + ' -> ', defaults[variable]);
             }
         }
 
         return options;
     };
 
-    InteractiveObject.extendedPrototype._attachLoadedTexture = function () {
+    // loading methods:
+
+    GameObject.prototype._attachLoadedTexture = function () {
         this.texture = loader.resources[this.image].texture;
         this._updatePropsAfterLoad();
         this._loaded = true;
     };
 
-    InteractiveObject.extendedPrototype._updatePropsAfterLoad = function () {
+    GameObject.prototype._updatePropsAfterLoad = function () {
         this.scale.x = this.scale.y = 1;
         if (this._afterLoadOptions.height) this.height = this._afterLoadOptions.height;
         if (this._afterLoadOptions.width) this.width = this._afterLoadOptions.width;
@@ -143,30 +131,13 @@ Game.addComponent ('interactive_object', ['renderer', 'loader'], function (game,
         delete this._afterLoadOptions;
     };
 
-    // === saving ===
-
-    InteractiveObject.extendedPrototype._getSaveData = function () {
-		var saveData = {};
-
-		for (var property in DEFAULTS) {
-			if (this.hasOwnProperty(property)) {
-				saveData[property] = this[property];
-			}
-		}
-		var i = saveValues.length;
-		while (i--) {
-			saveData[saveValues[i]] = this[saveValues[i]];
-		}
-
-		return saveData;
-	};
 
     // ==========  event handlers ==============
 
-    InteractiveObject.extendedPrototype.handleMouseDown = function (event) {
+    GameObject.prototype.handleMouseDown = function (event) {
         this._clickedAt = true;
     };
-    InteractiveObject.extendedPrototype.handleMouseUp = function (event) {
+    GameObject.prototype.handleMouseUp = function (event) {
         if (this._clickedAt) {
             this._clickedAt = false;
 
@@ -184,33 +155,22 @@ Game.addComponent ('interactive_object', ['renderer', 'loader'], function (game,
             }
         }
     };
-    InteractiveObject.extendedPrototype.handleMouseUpOutside = function (event) {
+    GameObject.prototype.handleMouseUpOutside = function (event) {
+
         this._clickedAt = false;
     };
-    InteractiveObject.extendedPrototype.handleMouseOver = function (event) {
-        //this.scale.set(1);
-        // user-editable mouse-in event hook
+    GameObject.prototype.handleMouseOver = function (event) {
 
+        // save the hovered element on a game wide state:
         if (game.currentState.hoveredElement !== this)
             game.currentState.hoveredElement = this;
 
+        // user-editable mouse-in event hook
         this.onMouseIn();
     };
-    InteractiveObject.extendedPrototype.handleMouseOut = function (event) {
-        //this.scale.set(1);
+    GameObject.prototype.handleMouseOut = function (event) {
+
         // user-editable mouse-out event hook
         this.onMouseOut();
     };
-
-
-    // a deleter function
-    /*InteractiveObject.prototype.unbind = function () {
-        this.texture
-    };*/
-
-
-    // add the extension to the prototype
-    game.mixinPrototype (InteractiveObject.prototype, InteractiveObject.extendedPrototype);
-
-    return InteractiveObject;
 });

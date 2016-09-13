@@ -125,7 +125,7 @@ Game.addComponent ('character', ['animatable_object', 'room', 'loader', 'rendere
     Character.prototype.runAction = function (action) {
         // in case that we interrupted an action (when blocking: false), we reset the action flags:
         this.moving = false;
-        if (this._currentAction !== null) console.log ('Character: action interrupted: ' + this._currentAction.action);
+        //if (this._currentAction !== null) console.log ('Character: action interrupted: ' + this._currentAction.action);
 
         this._currentAction = action;
 
