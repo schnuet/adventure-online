@@ -113,7 +113,7 @@ var gameData = function (game) {
                 roomName: 'rTest',
                 isPlayer: true,
                 speechStyle: {
-                    color: '#FF00FF'
+                    fill: '#FF00FF'
                 },
                 position: {
                     x: 785,

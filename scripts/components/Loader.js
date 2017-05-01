@@ -1,4 +1,5 @@
 ﻿// Das hier ist ein Modul, das alle Ressourcen managed, damit es bei der Laufzeit des Spiel zu keinen Fehlern kommt.
+// USES lodash
 
 /*var sprites = {};
 var loader = PIXI.loader
@@ -9,6 +10,7 @@ var loader = PIXI.loader
          sprites.title_ship = new PIXI.Sprite(resources.title_ship.texture);
          var ready = setTimeout(accountSetup,3000);
      });*/
+
 
 Game.addComponent ('loader', [], function (game) {
 
@@ -34,11 +36,11 @@ Game.addComponent ('loader', [], function (game) {
 	};
 
 	// a helper function that eliminates duplicates in an array:
-	function uniq(arr) {
-	    return arr.sort().filter(function(item, pos, ary) {
-	        return !pos || item != ary[pos - 1];
-	    })
-	}
+	//function uniq(arr) {
+	//    return arr.sort().filter(function(item, pos, ary) {
+	//        return !pos || item != ary[pos - 1];
+	//    })
+	//}
 
 	Loader.prototype.loadMedia  = function (mediaList, callback) {
 
@@ -48,7 +50,7 @@ Game.addComponent ('loader', [], function (game) {
 			return;
 		}
 
-		mediaList = uniq(mediaList);
+		mediaList = _.uniq(mediaList);
 
 		console.log ('Loader: media list to load: ', mediaList);
 

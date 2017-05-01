@@ -98,11 +98,14 @@ Game.addComponent ('game_object', ['loader'], function (game, loader) {
 
                 /*if (typeof options[variable] === 'array') {
                     console.log (variable + ' is an array...');
-                }
-                else if (typeof options[variable] === 'object') {
-                    console.log (variable + ' is an object...');
                 }*/
-                this[variable] = options[variable];
+                if (typeof options[variable] === 'object') {
+                    // using the lodash function to copy deep properties,
+                    // e.g: {x: 0, y: 6} are the defaults, only x is set in the
+                    // options. Using deep defaults, the default y will be kept.
+                    this[variable] = _.defaultsDeep(options[variable], defaults[variable]);
+                }
+                else this[variable] = options[variable];
 
                 // delete the option, we hav deelt wit it.
                 delete options[variable];

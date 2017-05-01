@@ -11,9 +11,11 @@ Game.addComponent ('character', ['animatable_object', 'room', 'loader', 'rendere
         dirViews: null,
         talkViews: null,
         speechStyle: {
-            color: 0x000000,
+            fill: 0xFFFFFF,
             fontSize: 26,
-            fontFamily: 'Arial'
+            fontFamily: 'Arial',
+            stroke: '#000000',
+            strokeThickness: 4
         }
     };
 
@@ -146,11 +148,10 @@ Game.addComponent ('character', ['animatable_object', 'room', 'loader', 'rendere
             this.speaking = true;
 
             // create and position a new text element:
-            this._currentText = new renderer.Text(this._currentAction.text);
+            this._currentText = new renderer.Text(this._currentAction.text, this.speechStyle);
             this._currentText.anchor.x = 0.5;
             this._currentText.x = 0;
             this._currentText.y = -this.height;
-            this._currentText.style.fill = this.speechStyle.color;
             this.addChild (this._currentText);
 
             console.log ('Text: --- ', this._currentText);
