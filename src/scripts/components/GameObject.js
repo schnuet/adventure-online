@@ -2,7 +2,9 @@
  *  The Game Object is a base object that provides some functions all the different game elements might need.
  *  It can't be used by itself, though.
  */
-Game.addComponent ('game_object', ['loader'], function (game, loader) {
+
+import Loader from './Loader.js';
+
 
     function GameObject () {
 
@@ -191,5 +193,4 @@ Game.addComponent ('game_object', ['loader'], function (game, loader) {
         this.onMouseOut();
     };
 
-    return GameObject;
-});
+export default GameObject;

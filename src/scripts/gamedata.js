@@ -332,3 +332,5 @@ var gameData = function (game) {
         }
     };
 }
+
+export default gameData;

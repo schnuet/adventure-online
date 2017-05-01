@@ -1,0 +1,38 @@
+{
+  "name": "adventureonline",
+  "version": "0.0.2",
+  "description": "A HTML5 adventure game engine for use in browser. Create your own adventure games with minimal effort.",
+  "main": "game.js",
+  "scripts": {
+    "start": "webpack --config mywebpack.config.js",
+    "serve": "webpack-dev-server --config mywebpack.config.js",
+    "build": "rollup -c",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/schnuet/adventure-online.git"
+  },
+  "keywords": [
+    "game",
+    "adventure",
+    "pixijs"
+  ],
+  "author": "Ntimi Schnütgen",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/schnuet/adventure-online/issues"
+  },
+  "homepage": "https://github.com/schnuet/adventure-online#readme",
+  "dependencies": {
+    "lodash": "^4.17.4",
+    "pixi.js": "^4.5.1"
+  },
+  "devDependencies": {
+    "babel-core": "^6.24.1",
+    "babel-loader": "^7.0.0",
+    "babel-preset-es2015": "^6.24.1",
+    "rollup-plugin-node-resolve": "^3.0.0",
+    "webpack": "^2.4.1"
+  }
+}

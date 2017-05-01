@@ -1,6 +1,10 @@
 // the renderer component serves as bridge to the PIXI functions and objects.
 
-Game.addComponent ('renderer', [], function (game) {
+let PIXI = require('pixi.js');
+
+export default function (game) {
+
+    console.log (PIXI);
 
     // ==== Preparing the canvas ===
 
@@ -13,7 +17,7 @@ Game.addComponent ('renderer', [], function (game) {
     // set the scale mode to pixel perfect (nearest neighbor)
     PIXI.settings.SCALE_MODE = PIXI.SCALE_MODES.NEAREST;
 
-    var Renderer = function () {
+    function Renderer () {
 
         // hook functions
         this.onRender = function(){};
@@ -123,75 +127,5 @@ Game.addComponent ('renderer', [], function (game) {
     Renderer.prototype.Graphics = PIXI.Graphics;
     Renderer.prototype.Rectangle = PIXI.Rectangle;
 
-    // Die Funktion, um das Bild neu zu zeichnen.
-    /*function drawScene () {
-    	d_log ("bei Frame nr.+"+actframe+" wird der Hintergrund gezeichnet.");
-    	// Zuerst wird das Bild geleert.
-    	context_scene.clearRect (0, 0, game.settings.width, game.settings.height);
-    	// Anschließend wird der Hintergrund des aktuellen Raums gezeichnet
-    	context_scene.drawImage (loadedRoom.img, viewport.X, viewport.Y, loadedRoom.width, loadedRoom.height, 0, 0, loadedRoom.width, loadedRoom.height);
-
-    	// Danach werden nacheinander alle Objekte auf die Leinwand aufgetragen.
-    	drawObjects ();
-
-    }
-
-    function drawGui (drawing_context) {
-    	drawing_context.clearRect (0, 0, game.settings.width, 480);
-
-    	// Erst wird das Dialogauswahlfeld gezeichnet
-    	if (actualDialog && SayList.length == 0) actualDialog.draw (drawing_context, 10, game.settings.height - actualDialog.height - game.settings.fontsize/4);
-
-    	// Dann der gesprochene und angezeigte Text
-    	if (MessageList.length > 0) {
-    		if (MessageList[0].draw (true) == false) MessageList.splice (0, 1);
-    	}
-    	if (SayList.length > 0) {
-    		if (SayList[0].active) {
-    			if (SayList[0].draw(false) == false) SayList.splice (0, 1);
-    		}
-    	}
-
-    	// Schließlich die aktivierten Gui-Elemente
-    	if (guiList) {
-    		var o = guiList.length;
-    		while (o--) {
-    			guiList[o].draw ();
-    		}
-    	}
-
-    	// Danach darüber die Maus
-    	mouse.draw (drawing_context);
-    }
-
-
-    // Eine Funktion für eine Schwarzblende zwischen zwei Szenen.
-    // Sobald die variable "fade" über 0 ist, wird sie bei jedem Tick aufgerufen.
-    var fade;
-    function Fade () {
-    	// Der Füllstil wird auf Schwarz gelegt.
-    	context_objects.fillStyle="#000000";
-    	// Nach und nach werden schwarze Flächen mit 80% Transparenz übereinandergelegt, um ein langsames abdunkeln zu bezwecken.
-    	if (fade < 6) {
-    		context_objects.globalAlpha=0.2;
-    		context_objects.fillRect (0, 0, game.settings.width, game.settings.height);
-    		fade++;
-    	}
-    	// Danach wird der Raum geändert, anschließend die Objektebene immer wieder neu gezeichnet, mit immer weniger Schwarzanteil.
-    	else if (fade < 12){
-    		if (fade == 6) drawScene ();
-    		drawObjects ();
-    		context_objects.globalAlpha = 1.0/(fade-5);
-    		context_objects.fillRect (0, 0, game.settings.width, game.settings.height);
-    		context_objects.globalAlpha=1.0;
-    		fade++;
-    	}
-    	// Ist der Vorgang abgeschlossen, wird der Status wieder auf -1 gesetzt, damit das Spiel weiter gehen kann.
-    	else {
-    		drawObjects ();
-    		fade = -1;
-    	}
-    }*/
-
     return new Renderer();
-});
+};

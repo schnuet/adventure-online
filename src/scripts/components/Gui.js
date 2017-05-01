@@ -1,7 +1,14 @@
 // Das hier ist das Raum-Modul
 
-Game.addComponent ('gui', ['renderer', 'loader', 'game_object', 'interactive_object', 'animatable_object'],
-function (game, renderer, Loader, GameObject, InteractiveObject, AnimatableObject) {
+import Renderer from './Renderer.js';
+import Loader from './Loader.js';
+
+import GameObject from './GameObject.js';
+import AnimatableObject from './AnimatableObject.js';
+import InteractiveObject from './InteractiveObject.js';
+
+//Game.addComponent ('gui', ['renderer', 'loader', 'game_object', 'interactive_object', 'animatable_object'],
+//function (game, renderer, Loader, GameObject, InteractiveObject, AnimatableObject) {
 
 	// ***************** GUI CONTAINER *****************
 
@@ -378,5 +385,4 @@ function (game, renderer, Loader, GameObject, InteractiveObject, AnimatableObjec
 	game.addEventListener('prepare', setupGuis);
 	game.addEventListener('game_loaded', createGuis);
 
-	return Gui;
-});
+export default Gui;

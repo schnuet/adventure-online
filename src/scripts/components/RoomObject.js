@@ -1,6 +1,11 @@
 // Extend the room to support the addition of objects.
 
-Game.addComponent ('room_object', ['room', 'interactive_object', 'animatable_object'], function (game, Room, InteractiveObject, AnimatableObject) {
+import Room from './Room.js';
+import AnimatableObject from './AnimatableObject.js';
+import InteractiveObject from './InteractiveObject.js';
+
+//Game.addComponent ('room_object', ['room', 'interactive_object', 'animatable_object'], function (game, Room, InteractiveObject, AnimatableObject) {
+function addRoomObjectComponent (game) {
 
     // extend Room prototype to add object support:
     Room.prototype.objectList = [];
@@ -112,7 +117,6 @@ Game.addComponent ('room_object', ['room', 'interactive_object', 'animatable_obj
         //}
     });
 
-    return {
+}
 
-    };
-});
+export default addRoomObjectComponent;
