@@ -1,7 +1,20 @@
 // the animatable object is basically the interactive object with animation functions.
 // use texturePacker to pack animation sheets for this frame.
 
-Game.addComponent ('animatable_object', ['renderer', 'loader', 'interactive_object'], function (game, renderer, loader, InteractiveObject) {
+Game.addComponent ('animatable_object', ['renderer', 'loader', 'game_object'], function (game, renderer, loader, GameObject) {
+
+    AnimatableObject = function (scriptName, options) {
+        renderer.AnimatedSprite.call(this, [PIXI.Texture.EMPTY]);
+
+        options = this._getDefaultProperties (options, DEFAULTS);
+
+        // construct the GameObject
+        this.construct.call(this, scriptName, options);
+
+        this._resourceList = [];
+
+        _loadViews.apply(this);
+    };
 
     // set the default settings:
     var DEFAULTS = {
@@ -20,19 +33,7 @@ Game.addComponent ('animatable_object', ['renderer', 'loader', 'interactive_obje
     // vars that should not be set in the options, but have to be saved:
     var saveValues = [];
 
-    AnimatableObject = function (scriptName, options) {
-        renderer.MovieClip.call(this, [PIXI.Texture.EMPTY]);
-
-        options = this._getDefaultProperties (options, DEFAULTS);
-
-        this.construct.call(this, scriptName, options);
-
-        this._resourceList = [];
-
-        _loadViews.apply(this);
-    };
-
-    AnimatableObject.prototype = Object.create(renderer.MovieClip.prototype);
+    AnimatableObject.prototype = Object.create(renderer.AnimatedSprite.prototype);
     AnimatableObject.constructor = AnimatableObject;
 
     // === private functions ===
@@ -72,7 +73,7 @@ Game.addComponent ('animatable_object', ['renderer', 'loader', 'interactive_obje
         this._resourceList.push(dir.image);
     };
 
-    game.mixinPrototype(AnimatableObject.prototype, InteractiveObject.extendedPrototype);
+    game.mixinComponent(AnimatableObject, GameObject);
 
 
     // === internal functions ===
@@ -112,7 +113,7 @@ Game.addComponent ('animatable_object', ['renderer', 'loader', 'interactive_obje
     AnimatableObject.prototype._getSaveData = function () {
 
         // save all the default values from the inherited class
-        var saveData = InteractiveObject.prototype._getSaveData.call(this);
+        var saveData = GameObject.prototype._getSaveData.call(this);
 
 		for (var property in DEFAULTS) {
 			if (this.hasOwnProperty(property)) {
@@ -128,7 +129,7 @@ Game.addComponent ('animatable_object', ['renderer', 'loader', 'interactive_obje
 	};
 
     AnimatableObject.prototype.update = function (deltaTime) {
-        renderer.MovieClip.prototype.update.call(this, deltaTime);
+        renderer.AnimatedSprite.prototype.update.call(this, deltaTime);
         this._handleFrameChange();
         this.onFrame(this.currentFrame);
     };

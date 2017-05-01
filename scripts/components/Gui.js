@@ -1,6 +1,7 @@
 // Das hier ist das Raum-Modul
 
-Game.addComponent ('gui', ['renderer', 'loader', 'interactive_object', 'animatable_object'], function (game, renderer, Loader, InteractiveObject, AnimatableObject) {
+Game.addComponent ('gui', ['renderer', 'loader', 'game_object', 'interactive_object', 'animatable_object'],
+function (game, renderer, Loader, GameObject, InteractiveObject, AnimatableObject) {
 
 	// ***************** GUI CONTAINER *****************
 
@@ -110,17 +111,39 @@ Game.addComponent ('gui', ['renderer', 'loader', 'interactive_object', 'animatab
 
         var newObject = null;
 
+		// check for text
+		let hasText = false;
+		let text = null;
+		if (options.text) {
+			var style = {};
+			if (typeof options.textStyle !== 'undefined') style = options.textStyle;
+			text = new renderer.Text(options.text, style);
+			text.anchor.x = 0;
+            text.x = options.textPosition.x || 0;
+            text.y = options.textPosition.y || -this.height;
+
+			delete options.text;
+			delete options.textPosition;
+			delete options.textStyle;
+
+			hasText = true;
+		}
+
+		let type = options.type;
+		delete options.type;
+
         // create an animatable object or a standard object
-        if (options.type === 'animated') {
+        if (type === 'animated') {
             newObject = new AnimatableObject(scriptName, options);
         }
-        else if (options.type === 'image') {
+        else if (type === 'image') {
             newObject = new InteractiveObject(scriptName, options);
         }
-		else if (options.type === 'graphic') {
+		else if (type === 'graphic') {
 			newObject = new renderer.Graphics(); //scriptName, options
 
 			var GRAPHIC_DEFAULTS = {
+				// graphic defaults
 				size: {
 					w: 100,
 					h: 100
@@ -129,14 +152,27 @@ Game.addComponent ('gui', ['renderer', 'loader', 'interactive_object', 'animatab
 				lineColor: 0x000000,
 				lineAlpha: 1,
 				fillColor: 0xFFFFFF,
-				fillAlpha: 1
+				fillAlpha: 1,
+
+				// type: 'graphic'
+				// text: '',
+				// textPosition: {
+				// 	x: 0,
+				// 	y: 0
+				// },
+				// textStyle: {
+				// 	fontFamily: 'Arial',
+				// 	fontSize: '16px',
+				// 	fontWeight: 'normal'
+				// }
 			};
 
 			// add the functions of an InteractiveObject to the graphic button
-			game.mixinPrototype (newObject, InteractiveObject.extendedPrototype);
-			InteractiveObject.prototype.construct.call(newObject, scriptName, options);
+			game.mixinPrototype (newObject, GameObject.prototype);
 
 			newObject._getDefaultProperties(options, GRAPHIC_DEFAULTS);
+			GameObject.prototype.construct.call(newObject, scriptName, options);
+
 
 			newObject._resourceList = [];
 
@@ -147,18 +183,12 @@ Game.addComponent ('gui', ['renderer', 'loader', 'interactive_object', 'animatab
 
 			newObject.hitArea = new renderer.Rectangle(0, 0, newObject.size.w, newObject.size.h);
 		}
-		newObject.type = options.type;
+		newObject.type = type;
 
-		// if there is text in the element, add the text:
-		if (options.text) {
-			var style = {};
-			if (typeof options.textStyle !== 'undefined') style = options.textStyle;
-			var text = new renderer.Text(options.text, style);
-			text.anchor.x = 0;
-            text.x = options.textPosition.x || 0;
-            text.y = options.textPosition.y || -this.height;
+		if (hasText === true) {
 			newObject.addChild(text);
 		}
+
 
         // add the object to the room object list
         this.objectList.push (newObject);
@@ -202,13 +232,14 @@ Game.addComponent ('gui', ['renderer', 'loader', 'interactive_object', 'animatab
 	// load event - called when all the resources in the room are loaded.
     function onLoadGui (object, guiName) {
 
-		console.log ('gui ' + guiName + ' loaded', object);
-        // only load it if the loaded room is the room the object is in.
+		//console.log ('gui ' + object.scriptName + ' ready');
+        // only load it if the loaded gui is the gui the object is in.
         if (guiName !== object.guiName) return;
 
-
         // create the image element of the object - if the element is not a plain graphic.
-        if (!object._loaded && object.type !== 'graphic') object._attachLoadedTexture ();
+        if (!object._loaded && object.type !== 'graphic') {
+			object._attachLoadedTexture ();
+		}
 
         // add the element to the room layer
         var gui = Gui.get(guiName);
@@ -290,7 +321,8 @@ Game.addComponent ('gui', ['renderer', 'loader', 'interactive_object', 'animatab
 			}
 		}
 
-		console.log ('Gui: List of guis. ', guiList);
+		console.log ('Gui: All guis created: ', guiList);
+		console.log ('-----');
 	};
 
 	function createGuis () {

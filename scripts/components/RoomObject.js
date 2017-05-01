@@ -11,7 +11,9 @@ Game.addComponent ('room_object', ['room', 'interactive_object', 'animatable_obj
         var newObject = null;
 
         // create an animatable object or a standard object
-        if (options.animatable === true) {
+        let animatable = options.animatable;
+        delete options.animatable;
+        if (animatable === true) {
             newObject = new AnimatableObject(scriptName, options);
         }
         else {
@@ -70,7 +72,7 @@ Game.addComponent ('room_object', ['room', 'interactive_object', 'animatable_obj
         room.addElement(object);
 
         console.log ('RoomObject: loaded object ' + object.name, object);
-        console.log (object.interactive);
+        //console.log ('Object is interactive: ', object.interactive);
     }
 
 

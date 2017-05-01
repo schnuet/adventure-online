@@ -23,6 +23,7 @@
             width: 0,
             scale: 1,
             fontsize: 30,
+            gameContainer: 'gamebox'
         };
 
         // take the passed settings:
@@ -32,6 +33,7 @@
 
         // ------------ other vars -------------
 
+        // create the game objects. We pass in a reference to this object.
         this.gameData = gameData(this);
 
 
@@ -123,7 +125,7 @@
         console.log ('LOADING: loaded save' + slot, textSaveData);
 
         this._saveData = JSON.parse(textSaveData);
-        console.log (this._saveData);
+        console.log ('Parsed save data: ', this._saveData);
 
         this.triggerEvent('onSavegameLoad');
 
@@ -241,8 +243,8 @@
         this.mixinPrototype(receiver.prototype, donator.prototype, overwrite);
 
         // save the component to the list of parent components:
-        if (typeof receiver._parentComponents !== 'array') receiver._parentComponents = [];
-        receiver._parentComponents.push (donator);
+        if (typeof receiver.prototype.pears !== 'array') receiver.prototype.pears = [];
+        receiver.prototype.pears.push (donator.name);
     };
 
 

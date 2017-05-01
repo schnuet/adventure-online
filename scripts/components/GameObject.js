@@ -2,12 +2,15 @@
  *  The Game Object is a base object that provides some functions all the different game elements might need.
  *  It can't be used by itself, though.
  */
-Game.addComponent ('game_object', [], function (game) {
+Game.addComponent ('game_object', ['loader'], function (game, loader) {
+
+    function GameObject () {
+
+    }
 
     // the game object default options:
     var DEFAULTS =
     {
-            image: '',              //  _image name to use (required)
             position: {
                 x: 0,               //  _x position (required)
                 y: 0                //  _y position (required)
@@ -15,8 +18,8 @@ Game.addComponent ('game_object', [], function (game) {
             z: 0,                   //  _z-index (used to order the objects on screen)
             visible: true,          //  _can the object be seen on screen
             interactive: true,      //  _can the user click on the object?
-            width: 0,               //  _width of the image
-            height: 0,              //  _height of the image
+            width: 0,               //  _width of the object
+            height: 0,              //  _height of the object
             baseline: 1,
             name: '',               //  _a readable display name (eg. 'Fernseher')
             tint: 0xFFFFFF,         //  _changing color of the object
@@ -27,15 +30,20 @@ Game.addComponent ('game_object', [], function (game) {
             onMouseOut: function() {}
     };
 
-    function GameObject () {
-
-    }
+    // vars that should not be set in the options, but have to be saved:
+    var saveValues = [];
 
     // the core constructor function.
     GameObject.prototype.construct = function (scriptName, options) {
         this.scriptName = scriptName;
 
+        // save all the passed properties in the object.
         options = this._getDefaultProperties (options, DEFAULTS);
+
+        // since this is the base class of other objects, all the options should
+        // be used up right now. Otherwise, give a notice.
+        let keys = Object.keys(options);
+        if (keys.length > 0) console.log ('There are still options of '+ this.scriptName + ':', keys);
 
         // we need to back up some options, because the loading process meddles with some properties
         // (especially sizes.)
@@ -45,10 +53,6 @@ Game.addComponent ('game_object', [], function (game) {
             baseline: options.baseline
         };
         if (typeof this._afterLoadOptions.baseline === 'undefined') this._afterLoadOptions.baseline = 1;
-
-        this._resourceList = [
-            this.image
-        ];
 
         // internal vars:
         this._clickedAt = false;
@@ -73,6 +77,8 @@ Game.addComponent ('game_object', [], function (game) {
 
             // set the mouseout callback...
             .on('mouseout', this.handleMouseOut);
+
+            //console.log(this);
 
         return options;
     };
@@ -102,7 +108,8 @@ Game.addComponent ('game_object', [], function (game) {
                 delete options[variable];
                 this._alreadySet.push(variable);
             }
-            // don't overwrite properties if they were already set.
+            // set the value to the default value
+            // if the property was not already set anywhere
             else if (this._alreadySet.indexOf(variable) === -1) {
                 this[variable] = defaults[variable];
                 this._alreadySet.push(variable);
@@ -112,14 +119,7 @@ Game.addComponent ('game_object', [], function (game) {
         return options;
     };
 
-    // loading methods:
-
-    GameObject.prototype._attachLoadedTexture = function () {
-        this.texture = loader.resources[this.image].texture;
-        this._updatePropsAfterLoad();
-        this._loaded = true;
-    };
-
+    // some properties have to be updated after the object has been loaded.
     GameObject.prototype._updatePropsAfterLoad = function () {
         this.scale.x = this.scale.y = 1;
         if (this._afterLoadOptions.height) this.height = this._afterLoadOptions.height;
@@ -131,6 +131,23 @@ Game.addComponent ('game_object', [], function (game) {
         delete this._afterLoadOptions;
     };
 
+    // ========== saving ==============
+
+    GameObject.prototype._getSaveData = function () {
+        var saveData = {};
+
+        for (var property in DEFAULTS) {
+            if (this.hasOwnProperty(property)) {
+                saveData[property] = this[property];
+            }
+        }
+        var i = saveValues.length;
+        while (i--) {
+            saveData[saveValues[i]] = this[saveValues[i]];
+        }
+
+        return saveData;
+    };
 
     // ==========  event handlers ==============
 
@@ -173,4 +190,6 @@ Game.addComponent ('game_object', [], function (game) {
         // user-editable mouse-out event hook
         this.onMouseOut();
     };
+
+    return GameObject;
 });

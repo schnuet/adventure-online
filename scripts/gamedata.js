@@ -3,6 +3,8 @@ var gameData = function (game) {
     var Character = {};
     var Gui = {};
 
+    var player = {};
+
     return {
         connect: function () {
             Character = game._loadedComponents.character;
@@ -72,6 +74,12 @@ var gameData = function (game) {
 
                         /*if (this.playing) this.stop();
                         else this.play();*/
+                    },
+                    onMouseIn: function () {
+                        this.cursor = 'pointer';
+                    },
+                    onMouseOut: function () {
+                        this.cursor = 'pointer';
                     }
                 }
             },
@@ -85,7 +93,7 @@ var gameData = function (game) {
                     name: 'Ein Laptop',
                     onClick: function () {
                         var player = Character.getPlayer();
-                        player.walk(this.x, player.y, false, function () {
+                        player.walk(1920, player.y, false, function () {
                             player.changeRoom('rTest', 0, player.y);
                         });
                     }
@@ -93,12 +101,20 @@ var gameData = function (game) {
             }
         },
         character: {
+            options: {
+                defaults: {
+
+                }
+            },
             jeff: {
                 animationSpeed: 0.25,
                 autoplay: false,
                 walkspeed: 6,
                 roomName: 'rTest',
                 isPlayer: true,
+                speechStyle: {
+                    color: '#FF00FF'
+                },
                 position: {
                     x: 785,
                     y: 370
@@ -218,7 +234,9 @@ var gameData = function (game) {
                         type: 'graphic',
                         text: 'menü',
                         textStyle: {
-                            font : 'normal 16px Arial',
+                            fontSize : '16px',
+                            fontFamily: 'Arial',
+                            fontWeight: 'normal'
                         },
                         textPosition: {
                             x: 10,
@@ -257,7 +275,9 @@ var gameData = function (game) {
                         type: 'graphic',
                         text: 'speichern',
                         textStyle: {
-                            font : 'normal 15px Arial',
+                            fontSize : '15px',
+                            fontFamily: 'Arial',
+                            fontWeight: 'normal'
                         },
                         textPosition: {
                             x: 10,
@@ -283,7 +303,9 @@ var gameData = function (game) {
                         type: 'graphic',
                         text: 'laden',
                         textStyle: {
-                            font : 'normal 15px Arial',
+                            fontSize : '15px',
+                            fontFamily: 'Arial',
+                            fontWeight: 'normal'
                         },
                         textPosition: {
                             x: 10,

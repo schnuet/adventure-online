@@ -204,7 +204,7 @@ Game.addComponent ('room', ['renderer', 'loader'], function (game, renderer, loa
 	Room.load = function (roomName) {
 		console.log ('-------------------------------');
 		console.log ('Room: Loading room ' + roomName);
-		console.log (currentRoom);
+		console.log ('currently in room ' + currentRoom);
 		Room.get(roomName).load();
 	};
 
@@ -236,7 +236,8 @@ Game.addComponent ('room', ['renderer', 'loader'], function (game, renderer, loa
 			}
 		}
 
-		console.log ('Room: List of rooms. ', roomList);
+		console.log ('Room: All rooms created: ', roomList);
+		console.log ('-----');
 	};
 
 	/*function loadFirstRoom () {

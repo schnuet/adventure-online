@@ -9,7 +9,12 @@ Game.addComponent ('character', ['animatable_object', 'room', 'loader', 'rendere
         roomName: '',
         isPlayer: false,
         dirViews: null,
-        talkViews: null
+        talkViews: null,
+        speechStyle: {
+            color: 0x000000,
+            fontSize: 26,
+            fontFamily: 'Arial'
+        }
     };
 
     // vars that should not be set in the options, but have to be saved:
@@ -24,10 +29,10 @@ Game.addComponent ('character', ['animatable_object', 'room', 'loader', 'rendere
         if (typeof options.baseline === 'undefined') options.baseline = 0;
         if (typeof options.autoplay === 'undefined') options.autoplay = false;
 
+        this._getDefaultProperties (options, DEFAULTS);
+
         // get parent settings
         AnimatableObject.call(this, scriptName, options);
-
-        this._getDefaultProperties (options, DEFAULTS);
 
         // === public vars ===
 
@@ -145,7 +150,10 @@ Game.addComponent ('character', ['animatable_object', 'room', 'loader', 'rendere
             this._currentText.anchor.x = 0.5;
             this._currentText.x = 0;
             this._currentText.y = -this.height;
+            this._currentText.style.fill = this.speechStyle.color;
             this.addChild (this._currentText);
+
+            console.log ('Text: --- ', this._currentText);
 
             // set a game flag that says that there is currently an
             // action running that blocks additions to action queues
@@ -295,11 +303,14 @@ Game.addComponent ('character', ['animatable_object', 'room', 'loader', 'rendere
         // save all the default values from the inherited class
         var saveData = AnimatableObject.prototype._getSaveData.call(this);
 
+        // save all the properties that can be set in the defaults
 		for (var property in DEFAULTS) {
 			if (this.hasOwnProperty(property)) {
 				saveData[property] = this[property];
 			}
 		}
+
+        // get the other values
 		var i = saveValues.length;
 		while (i--) {
 			saveData[saveValues[i]] = this[saveValues[i]];
@@ -389,12 +400,17 @@ Game.addComponent ('character', ['animatable_object', 'room', 'loader', 'rendere
         _options = characterConfig.options;
         delete characterConfig.options;
 
+        // rework the defaults based on the character options.
+        // TODO!
+        //DEFAULTS = options.defaults.
+
         // make characters from the rest of the array:
         for (var charName in characterConfig) {
             new Character (charName, characterConfig[charName]);
         }
 
-        console.log ('Characters: List of characters. ', characterList);
+        console.log ('Characters: All characters created: ', characterList);
+        console.log ('-----');
     };
 
     // called after all the textures for the characters are loaded.
@@ -418,10 +434,10 @@ Game.addComponent ('character', ['animatable_object', 'room', 'loader', 'rendere
 			playerChar: playerChar,
 		};
 
-		// loop through all the rooms:
+		// loop through all the characters and save each one.
 		var i = characterList.length;
 		while (i--) {
-			console.log (characterList[i].scriptName);
+			console.log ('saving char ' + characterList[i].scriptName);
 			saveChars[characterList[i].scriptName] = characterList[i]._getSaveData();
 		}
 

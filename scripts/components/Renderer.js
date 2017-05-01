@@ -11,7 +11,7 @@ Game.addComponent ('renderer', [], function (game) {
     var time = new Date().getTime();
 
     // set the scale mode to pixel perfect (nearest neighbor)
-    PIXI.SCALE_MODES.DEFAULT = PIXI.SCALE_MODES.NEAREST;
+    PIXI.settings.SCALE_MODE = PIXI.SCALE_MODES.NEAREST;
 
     var Renderer = function () {
 
@@ -118,7 +118,7 @@ Game.addComponent ('renderer', [], function (game) {
 
     // give access to PIXI classes.
     Renderer.prototype.Sprite = PIXI.Sprite;
-    Renderer.prototype.MovieClip = PIXI.extras.MovieClip;
+    Renderer.prototype.AnimatedSprite = PIXI.extras.AnimatedSprite;
     Renderer.prototype.Text = PIXI.Text;
     Renderer.prototype.Graphics = PIXI.Graphics;
     Renderer.prototype.Rectangle = PIXI.Rectangle;

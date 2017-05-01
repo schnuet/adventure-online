@@ -7,10 +7,11 @@ Game.addComponent ('saveable_object', [], function (game) {
 
     }
 
-    SaveableObject.prototype._getSaveData = function (defaults) {
+    // return all the properties of the object that we want to save.
+    SaveableObject.prototype._getSaveData = function (propertiesToSave) {
 		var saveData = {};
 
-		for (var property in defaults) {
+		for (var property in propertiesToSave) {
 			if (this.hasOwnProperty(property)) {
 				saveData[property] = this[property];
 			}
