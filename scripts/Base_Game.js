@@ -171,16 +171,16 @@
 
     // ************** STATIC METHODS **********************
 
-    var componentCalls = {};
+    var componentCallbacks = {};
 
     /**
-     * @params: componentName   _the name of the component to add
-     *          dependencies    _an array with all the componentNames of the components it needs to work
-      *         callback        _the building function that creates the component (called on 'create')
+     * @param {string} componentName   the name of the component to add
+     * @param {Array} dependencies     an array with all the componentNames of the components it needs to work
+     * @param {Function} callback      the building function that creates the component (called on 'create')
     **/
     Game.addComponent = function functionName(componentName, dependencies, callback) {
 
-        componentCalls[componentName] = callback;
+        componentCallbacks[componentName] = callback;
 
         // add to global event list.
         Game.prototype.events.create.push(function () {
@@ -194,6 +194,11 @@
 
     // ******************* COMPONENTS *************************
 
+    /**
+     * 
+     * @param {string} componentName The name of the component
+     * @param {string[]} dependencies The registered names of the modules the component requires.
+     */
     Game.prototype.activateComponent = function (componentName, dependencies) {
 
         console.log ('Components: activating component ' + componentName);
@@ -215,10 +220,10 @@
         resolvedDeps.unshift(this);
 
         // build the components, save them with their names
-        this._loadedComponents[componentName] = componentCalls[componentName].apply(null, resolvedDeps);
+        this._loadedComponents[componentName] = componentCallbacks[componentName].apply(null, resolvedDeps);
 
         // the var has served its purpose. Not needed any longer.
-        delete componentCalls;
+        delete componentCallbacks;
     };
 
     /**

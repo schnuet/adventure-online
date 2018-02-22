@@ -2,7 +2,7 @@
  *  The Game Object is a base object that provides some functions all the different game elements might need.
  *  It can't be used by itself, though.
  */
-Game.addComponent ('game_object', ['loader'], function (game, loader) {
+Game.addComponent ('game_object', [], function (game) {
 
     function GameObject () {
 
